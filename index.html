@@ -1,8 +1,23 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
   </head>
   <body>
+    <div style="display: inline-block;" id="game-canvas"></div>
+    <div
+      style="display: inline-block; height: 600px; width: 800px;"
+      id="blockly"
+    ></div>
+    <xml
+      xmlns="https://developers.google.com/blockly/xml"
+      id="toolbox"
+      style="display: none"
+    >
+      <block type="move"></block>
+      <block type="pickUp"></block>
+      <block type="drop"></block>
+      <block type="forever"></block>
+    </xml>
   </body>
 </html>
