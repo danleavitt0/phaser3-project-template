@@ -15,6 +15,20 @@ Blockly.JavaScript['move'] = function(block) {
   return `${dropdown_direction}(1);\n`
 }
 
+Blockly.JavaScript['forward'] = function(block) {
+  var dropdown_direction = block.getFieldValue('direction').trim();
+  return `${dropdown_direction}(1);\n`
+}
+
+Blockly.JavaScript['turnRight'] = function(block) {
+  return `turnRight();\n`
+}
+
+Blockly.JavaScript['turnLeft'] = function(block) {
+  var dropdown_direction = block.getFieldValue('direction').trim();
+  return `turnLeft();\n`
+}
+
 Blockly.JavaScript['pickUp'] = function(block) {
   return 'pickUp();\n'
 }
@@ -27,6 +41,40 @@ Blockly.Blocks['move'] = {
     this.appendDummyInput()
         .appendField("move")
         .appendField(new Blockly.FieldDropdown([["up ↑","up "], ["right →","right"], ["down ↓","down"], ["left ←","left"]]), "direction");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(230);
+ this.setTooltip("");
+ this.setHelpUrl("");
+  }
+};
+
+Blockly.Blocks['forward'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField("forward")
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(230);
+ this.setTooltip("");
+ this.setHelpUrl("");
+  }
+};
+Blockly.Blocks['turnRight'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField("turnRight")
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(230);
+ this.setTooltip("");
+ this.setHelpUrl("");
+  }
+};
+Blockly.Blocks['turnLeft'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField("turnLeft")
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(230);

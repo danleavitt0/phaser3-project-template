@@ -1,12 +1,12 @@
 import Phaser, { Scene, Game } from "phaser";
-import isoBlocksImg from "./assets/atlas/isoblocks.png";
-import workspace, {codeBuilder} from './blocklySetup1';
-import isoJson from "./assets/atlas/isoblocks.json";
 import IsoPlugin from "phaser3-plugin-isometric";
-import Interpreter from 'js-interpreter';
-import cubeImg from "./assets/cube2.png";
-import tileImg1 from './assets/sprite_0.png'
-import tileImg2 from './assets/sprite_1.png'
+import isoBlocksImg from "../assets/atlas/isoblocks.png";
+import isoJson from "../assets/atlas/isoblocks.json";
+import cubeImg from "../assets/spritesheet.png";
+import cubeJson from "../assets/spritesheet.json";
+import tileImg from "../assets/tile.png";
+import workspace, {codeBuilder} from '../blocklySetup1'
+import Interpreter from 'js-interpreter'
 
 const levelLayout = [
   [1, 2, 1, 1, 1],
@@ -16,15 +16,16 @@ const levelLayout = [
   [1, 1, 1, 1, 1]
 ];
 
-const SPEED = 300
 
-export class SecondScene extends Scene {
+const SPEED = 500
+
+export default class FirstScene extends Scene {
   constructor() {
     super({
-      key: "2DExample",
+      mapAdd: { isoPlugin: "iso" }
     });
     this.size = levelLayout.length - 1
-    this.characterX = 1;
+    this.characterX = 0;
     this.characterY = 4;
     this.workspace = workspace
     this.running = false;
@@ -38,9 +39,15 @@ export class SecondScene extends Scene {
   }
 
   preload() {
-    this.load.image("tile1", tileImg1)
-    this.load.image("tile2", tileImg2)
-    this.load.image("cube", cubeImg);
+    this.load.atlas("isoblocks", isoBlocksImg, isoJson);
+    this.load.spritesheet("cube", cubeImg, {frameWidth: 40, frameHeight: 32, startFrame: 3})
+    // this.load.image("cube", cubeImg);
+    this.load.image("tile", tileImg);
+    this.load.scenePlugin({
+      key: "IsoPlugin",
+      url: IsoPlugin,
+      sceneKey: "iso"
+    });
   }
 
   up (n = 1) {
@@ -48,15 +55,6 @@ export class SecondScene extends Scene {
       this.characterY = 0
     } else {
       this.characterY -= 1;
-    }
-    this.renderCharacter();
-  }
-
-  down (n = 1) {
-    if (this.characterY + 1 > this.size) {
-      this.characterY = this.size
-    } else {
-      this.characterY += 1;
     }
     this.renderCharacter();
   }
@@ -70,36 +68,20 @@ export class SecondScene extends Scene {
     this.renderCharacter();
   }
 
-  pickUp () {
-    const locationData = levelLayout[this.characterY][this.characterX]
-    if (locationData === 3) {
-      this.carrying = true
-      this.characterSpriteGroup.add(this.dataCube, true)
-    }
-    this.renderCharacter();
+  forward () {
+
   }
 
-  drop () {
-    if (this.carrying) {
-      this.carrying = false
-      this.characterSpriteGroup.remove(this.dataCube)
-      this.tweens.add({
-        targets: this.dataCube,
-        x: this.characterX * 50,
-        y: this.characterY * 50,
-        duration: SPEED - 200
-      })
-    }
-    this.renderCharacter()
+  turnRight () {
+    
+    const frame = (((this.characterSprite.isoRotation || 0) + 90 % 360) / 90) + 1
+    // this.characterSprite.(this.characterSprite.rotation + 90)
+    console.log(frame)
+    this.characterSprite.setFrame(frame)
   }
 
-  left (n = 1) {
-    if (this.characterX - 1 < 0) {
-      this.characterX = 0
-    } else {
-      this.characterX -= 1
-    }
-    this.renderCharacter();
+  turnLeft () {
+
   }
 
   reset () {
@@ -107,6 +89,9 @@ export class SecondScene extends Scene {
     this.scene.start()
     this.characterX = 0
     this.characterY = 4
+    this.characterSprite.isoX = 0
+    this.characterSprite.isoY = 4
+    this.characterSprite.isoZ = 0
   }
 
   lost () {
@@ -124,10 +109,11 @@ export class SecondScene extends Scene {
 
   run () {
     this.scene.start()
-    this.characterX = 1;
+    this.characterX = 0;
     this.characterY = 4;
     this.running = true;
     const code = codeBuilder()
+    console.log(code)
     this.interpreter = new Interpreter(code, this.initApi.bind(this));
     this.nextStep();
   }
@@ -139,37 +125,35 @@ export class SecondScene extends Scene {
   create() {
     // Set the origin of the isometric projection to the mid top of the screen
 
-    this.tileGroup = this.add.group();
-    this.startButton = this.add.circle(-100, -100, 50, 0x303300, 1).setInteractive()
-    this.add.text(-115, -107, 'Run')
+    this.isoGroup = this.add.group();
+    this.iso.projector.origin.setTo(0.5, 0.2);
+    this.startButton = this.add.circle(150, 0, 50, 0x303300, 1).setInteractive()
+    this.add.text(136, -7, 'Run')
     this.startButton.on('pointerdown', () => this.run())
 
-    this.stopButton = this.add.circle(10, -100, 50, 0x330000, 1).setInteractive()
-    this.add.text(-7, -107, 'Stop')
+    this.stopButton = this.add.circle(250, 0, 50, 0x330000, 1).setInteractive()
+    this.add.text(230, -7, 'Stop')
     this.stopButton.on('pointerdown', () => this.stop())
-    this.characterSpriteGroup = this.add.group()
 
     // Even though the children are added back to front, it is sorted the right way
     // because depth value is set on the IsoSprites and Phaser 3 sorts after that by default.
 
     // Create a cube using the new isoSprite factory method at the specified position.
     this.spawnTiles();
-    this.characterSprite = this.add.sprite(
-      this.characterX * 50,
-      (this.characterY * 50) - 3,
-      "cube"
-    )
-    this.characterSpriteGroup.add(this.characterSprite)
+    this.characterSprite = this.add.isoSprite(
+      this.characterX * 38,
+      this.characterY * 38,
+      10,
+      "cube",
+      // "cube-up"
+    );
+
+    this.characterSprite.setFrame(3)
 
     this.characterSprite.depth = 1
     // this.cameras.main.zoom = 1;
-    this.cameras.main.scrollY = -200;
-    this.cameras.main.scrollX = -200;
+    this.cameras.main.scrollY = -110;
     // Add a tween so we can see the depth sorting works on updates
-  }
-
-  spawnData (x, y) {
-    this.dataCube = this.add.sprite(x * 50, y * 50, 'cube').setTint(0x2CAA22).setScale(0.72).setDepth(2).setData('xy', [x, y])
   }
 
   renderCharacter() {
@@ -178,10 +162,9 @@ export class SecondScene extends Scene {
     const maybeDoMoreThings = () => {
       const characterLocationValue = levelLayout[this.characterY][this.characterX]
       if (characterLocationValue === 0) {
-        this.characterSpriteGroup.setDepth(-2)
         return this.tweens.add({
-          targets: this.characterSpriteGroup.getChildren(),
-          y: this.characterY * 50 + 100,
+          targets: this.characterSprite,
+          isoZ: -500,
           duration: 2000,
           scaleX: 0,
           scaleY: 0,
@@ -190,13 +173,14 @@ export class SecondScene extends Scene {
           onComplete: () => this.lost(),
           repeat: 0
         })
-      }
-      this.characterSpriteGroup.getChildren().forEach(block => block.setData('xy', [this.characterX, this.characterY])) 
+      } else if (characterLocationValue === 2) {
+        return this.onComplete()
+      }       
     }
     this.tweens.add({
-      targets: this.characterSpriteGroup.getChildren(),
-      x: this.characterX * 50,
-      y: (this.characterY * 50) - 3,
+      targets: this.characterSprite,
+      isoX: this.characterX * 38,
+      isoY: this.characterY * 38,
       duration: SPEED - 200,
       onComplete: maybeDoMoreThings
     })
@@ -206,25 +190,34 @@ export class SecondScene extends Scene {
   spawnTiles() {
     levelLayout.forEach((row, y) => {
       row.forEach((column, x) => {
-        var tile = this.add.sprite(
-          x * 50,
-          y * 50,
-          (x + y) % 2 === 0 ? "tile1" : "tile2",
+        var tile = this.add.isoSprite(
+          x * 38,
+          y * 38,
+          0,
+          "tile",
+          this.isoGroup
           // "block-058"
         );
         tile.setData("row", x);
         tile.setData("col", y);
-        // tile.depth = -1;
+        tile.depth = -1;
 
         tile.setInteractive();
 
         if (!column) {
           tile.destroy();
         } else if (column === 2) {
-          this.dropPoint = [x, y]
           tile.setTint(0xF4F396)
-        } else if (column === 3) {
-          this.spawnData(x, y)
+        } else {
+          tile.on("pointerover", function() {
+            this.setTint(0x86bfda);
+            this.isoZ += 5;
+          });
+
+          tile.on("pointerout", function() {
+            this.clearTint();
+            this.isoZ -= 5;
+          });
         }
 
         // tile.setDepth(centerY + rowNum + columnNum);
@@ -248,34 +241,12 @@ export class SecondScene extends Scene {
     
     interpreter.setProperty(scope, 'right',
         interpreter.createAsyncFunction(wrapper));
-    wrapper = (n, callback) => {
-      this.down(n)
-      return setTimeout(callback, SPEED)
-    };
-    
-    interpreter.setProperty(scope, 'down',
-        interpreter.createAsyncFunction(wrapper));
-    wrapper = (n, callback) => {
-      this.left(n)
-      return setTimeout(callback, SPEED)
-    };
-    
-    interpreter.setProperty(scope, 'left',
-        interpreter.createAsyncFunction(wrapper));
-
     wrapper = (callback) => {
-      this.pickUp()
+      this.turnRight()
       return setTimeout(callback, SPEED)
     };
     
-    interpreter.setProperty(scope, 'pickUp',
-        interpreter.createAsyncFunction(wrapper));
-    wrapper = (callback) => {
-      this.drop()
-      return setTimeout(callback, SPEED)
-    };
-    
-    interpreter.setProperty(scope, 'drop',
+    interpreter.setProperty(scope, 'turnRight',
         interpreter.createAsyncFunction(wrapper));
 
     wrapper = (id) => this.workspace.highlightBlock(id);
@@ -285,21 +256,17 @@ export class SecondScene extends Scene {
   }
 
   update() {
-    const dataCubeXY = this.dataCube.getData('xy')
     
-    if (dataCubeXY && !this.carrying && this.dropPoint.every((val, axis) => val === dataCubeXY[axis])) {
-      this.onComplete()
-    }
   }
 }
 
-let config = {
-  type: Phaser.AUTO,
-  width: 600,
-  height: 600,
-  pixelArt: true,
-  scene: SecondScene,
-  parent: "game-canvas"
-};
+// let config = {
+//   type: Phaser.AUTO,
+//   width: 600,
+//   height: 600,
+//   pixelArt: true,
+//   scene: FirstScene,
+//   parent: "game-canvas"
+// };
 
-new Game(config);
+// new Game(config);
