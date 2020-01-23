@@ -36,6 +36,7 @@
   "dependencies": {
     "blockly": "^3.20191014.4",
     "js-interpreter": "^1.4.6",
+    "lodash": "^4.17.15",
     "phaser": "^3.20.1",
     "phaser3-plugin-isometric": "^0.0.7"
   }

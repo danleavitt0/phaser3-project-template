@@ -3,6 +3,30 @@ Blockly.JavaScript.addReservedWords('code');
 Blockly.JavaScript.STATEMENT_PREFIX = 'highlightBlock(%1);\n';
 Blockly.JavaScript.addReservedWords('highlightBlock');
 
+
+const workspace = Blockly.inject("blockly", {
+  media: "../build/media",
+  toolbox: document.getElementById("toolbox")
+});
+
+const clickHandler = (type) => () => {
+  const blocks = workspace.getAllBlocks().filter(block => !block.disabled)
+  const lastBlock = blocks[blocks.length - 1]
+  const newBlock = workspace.newBlock(type)
+  // newBlock.setParent(lastBlock)
+  newBlock.initSvg()
+  newBlock.render()
+
+  var parentConnection = lastBlock.nextConnection;
+  var childConnection = newBlock.previousConnection;
+  parentConnection.connect(childConnection);
+}
+
+
+Blockly.JavaScript['start'] = function (block) {
+  return ''
+}
+
 Blockly.JavaScript['forever'] = function(block) {
   const statements_loopcode = Blockly.JavaScript.statementToCode(block, 'loopCode');
   // TODO: Assemble JavaScript into code variable.
@@ -15,9 +39,28 @@ Blockly.JavaScript['move'] = function(block) {
   return `${dropdown_direction}(1);\n`
 }
 
+Blockly.JavaScript['up'] = function(block) {
+  return `up(1);\n`
+}
+
+
+Blockly.JavaScript['down'] = function(block) {
+  return `down(1);\n`
+}
+
+
+Blockly.JavaScript['left'] = function(block) {
+  return `left(1);\n`
+}
+
+
+Blockly.JavaScript['right'] = function(block) {
+  return `right(1);\n`
+}
+
+
 Blockly.JavaScript['forward'] = function(block) {
-  var dropdown_direction = block.getFieldValue('direction').trim();
-  return `${dropdown_direction}(1);\n`
+  return `forward(1);\n`
 }
 
 Blockly.JavaScript['turnRight'] = function(block) {
@@ -25,7 +68,6 @@ Blockly.JavaScript['turnRight'] = function(block) {
 }
 
 Blockly.JavaScript['turnLeft'] = function(block) {
-  var dropdown_direction = block.getFieldValue('direction').trim();
   return `turnLeft();\n`
 }
 
@@ -44,8 +86,61 @@ Blockly.Blocks['move'] = {
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(230);
- this.setTooltip("");
- this.setHelpUrl("");
+    this.setTooltip("");
+    this.setHelpUrl("");
+    this.pathObject.svgRoot.onclick = clickHandler('move')
+  }
+};
+
+Blockly.Blocks['up'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField("up")
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(230);
+    this.setTooltip("");
+    this.setHelpUrl("");
+    this.pathObject.svgRoot.onclick = clickHandler('up')
+  }
+};
+
+Blockly.Blocks['down'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField("down")
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(230);
+    this.setTooltip("");
+    this.setHelpUrl("");
+    this.pathObject.svgRoot.onclick = clickHandler('down')
+  }
+};
+
+Blockly.Blocks['left'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField("left")
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(230);
+    this.setTooltip("");
+    this.setHelpUrl("");
+    this.pathObject.svgRoot.onclick = clickHandler('left')
+  }
+};
+
+Blockly.Blocks['right'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField("right")
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(230);
+    this.setTooltip("");
+    this.setHelpUrl("");
+    this.pathObject.svgRoot.onclick = clickHandler('right')
   }
 };
 
@@ -56,10 +151,12 @@ Blockly.Blocks['forward'] = {
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(230);
- this.setTooltip("");
- this.setHelpUrl("");
+    this.setTooltip("");
+    this.setHelpUrl("");
+    this.pathObject.svgRoot.onclick = clickHandler('forward')
   }
 };
+
 Blockly.Blocks['turnRight'] = {
   init: function() {
     this.appendDummyInput()
@@ -67,8 +164,9 @@ Blockly.Blocks['turnRight'] = {
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(230);
- this.setTooltip("");
- this.setHelpUrl("");
+    this.setTooltip("");
+    this.setHelpUrl("");
+    this.pathObject.svgRoot.onclick = clickHandler('turnRight')
   }
 };
 Blockly.Blocks['turnLeft'] = {
@@ -78,8 +176,11 @@ Blockly.Blocks['turnLeft'] = {
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(230);
- this.setTooltip("");
- this.setHelpUrl("");
+    this.setTooltip("");
+    this.setHelpUrl("");
+    // console.log
+    this.pathObject.svgRoot.onclick = clickHandler('turnLeft')
+    // this.addEventListener('click', () => console.log('tacos'))
   }
 };
 
@@ -90,8 +191,9 @@ Blockly.Blocks['pickUp'] = {
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(230);
- this.setTooltip("");
- this.setHelpUrl("");
+    this.setTooltip("");
+    this.setHelpUrl("");
+    this.pathObject.svgRoot.onclick = clickHandler('pickup')
   }
 };
 Blockly.Blocks['drop'] = {
@@ -101,8 +203,9 @@ Blockly.Blocks['drop'] = {
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(230);
- this.setTooltip("");
- this.setHelpUrl("");
+    this.setTooltip("");
+    this.setHelpUrl("");
+    this.pathObject.svgRoot.onclick = clickHandler('drop')
   }
 };
 
@@ -118,15 +221,25 @@ Blockly.Blocks['forever'] = {
     this.setColour(120);
     this.setTooltip("");
     this.setHelpUrl("");
+    this.pathObject.svgRoot.onclick = clickHandler('forever')
   }
 };
 
+Blockly.Blocks['start'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField('start code here')
+    this.setColour(50)
+    this.setNextStatement(true, null);
+    this.setPreviousStatement(false)
+    this.setMovable(false)
+    this.setEditable(false)
+    this.hat = 'cap'
+  }
+}
 
 
-const workspace = Blockly.inject("blockly", {
-  media: "../build/media",
-  toolbox: document.getElementById("toolbox")
-});
+
 
 const codeBuilder = () => Blockly.JavaScript.workspaceToCode(workspace)
 

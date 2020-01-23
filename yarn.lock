@@ -1555,7 +1555,7 @@ cliui@^5.0.0:
     strip-ansi "^5.2.0"
     wrap-ansi "^5.1.0"
 
-"clone@github:aminmarashi/clone#d97b4f":
+clone@aminmarashi/clone#d97b4f:
   version "2.1.1"
   resolved "https://codeload.github.com/aminmarashi/clone/tar.gz/d97b4f0ff3d3afebcaaf4a2ecc9c50fbce914900"
 
