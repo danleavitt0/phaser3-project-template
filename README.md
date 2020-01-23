@@ -52,6 +52,7 @@ the name of the scene
 
  #### levelLayout - array (matrix)
 This matrix represents the level
+
  | Number | Description |
  |--------|-------------|
  | 0 | an empty space |
